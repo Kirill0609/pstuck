@@ -4,6 +4,7 @@ import win32gui
 import time
 import PIL.ImageGrab as sc
 import itertools
+from operator import itemgetter
 
 def move((x,y)):
     win32api.SetCursorPos((x,y))
@@ -74,9 +75,13 @@ def boardToString(board):
         nboard.append(row)
     return nboard
 
-def printBoard(board):
-    for row in boardToString(board):
-        print(("{} "*5).format(*row))
+def printBoard(board, weights = []):
+    for i, row in enumerate(boardToString(board)):
+        if 5-i >= len(weights):
+            print(("{} "*5).format(*row))
+        else:
+            print(("{} "*5+"  {w}").format(*row, w=colormap[weights[5-i][0]]))
+    
 
 def swapBoard(board, start, stop):
     board[start[1]][start[0]] ^= board[stop[1]][stop[0]]
@@ -102,7 +107,7 @@ def swap(board, start, stop, fake=False):
     start = coords(start)
     stop = coords(stop)
     if not fake:
-        t = [.08, 0, .04]
+        t = [.08, 0, .05]
         move(start)
         time.sleep(t[0])
         down(start)
@@ -152,7 +157,9 @@ def colorCenter(board):
         if len(clist) > 2:
             x = float(sum([a[0] for a in clist]))/len(clist)
             y = float(sum([a[1] for a in clist]))/len(clist)
-            result.append((color, x,y))
+            result.append((color, x,y, len(clist) if len(clist) < 5 else 5))
+    result = sorted(result, key= lambda x: x[2], reverse=True)
+    result = sorted(result, key= itemgetter(3,2), reverse=True)
     return result
 
 def colorToPoint(board, color, pos, exclude):
@@ -193,7 +200,6 @@ def doRows(fake = False):
     board = getBoard()
     printBoard(board)
     weights = colorCenter(board)
-    weights = sorted(weights, key= lambda x: x[2], reverse=True)
 
     times.append(time.time())
 
@@ -207,7 +213,7 @@ def doRows(fake = False):
         print("times: {}".format(times[1:]))
     else:
         print("times: {}".format(moves*.13))
-    printBoard(board)
+    printBoard(board, weights)
     print("")
 
     if not fake:
