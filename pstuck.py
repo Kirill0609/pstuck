@@ -84,6 +84,14 @@ def swapBoard(board, start, stop):
     board[start[1]][start[0]] ^= board[stop[1]][stop[0]]
     return board
 
+def compareBoard(b1, b2):
+    errs = 0
+    for x in range(5):
+        for y in range(6):
+            if b1[y][x] != b2[y][x]:
+                errs+=1
+    return errs
+
 def coords((x,y)):
     return int(corner[0] + scale*(x+.5)), int(corner[1] + scale*(y+.5))
 
@@ -94,7 +102,7 @@ def swap(board, start, stop, fake=False):
     start = coords(start)
     stop = coords(stop)
     if not fake:
-        t = [.05, 0, .08]
+        t = [.08, 0, .04]
         move(start)
         time.sleep(t[0])
         down(start)
@@ -200,8 +208,14 @@ def doRows(fake = False):
     else:
         print("times: {}".format(moves*.13))
     printBoard(board)
+    print("")
 
-    move(coords((6,0)))
+    if not fake:
+        move(coords((6,0)))
+        board2 = getBoard()
+        printBoard(board2)
+        print("errors: {}\n".format(compareBoard(board, board2)))
+
 
 
 while 1:
@@ -210,4 +224,8 @@ while 1:
         doRows(True)
     if win32api.GetAsyncKeyState(win32con.VK_F2):
         doRows(False)
+    if win32api.GetAsyncKeyState(win32con.VK_F3):
+        corner = win32api.GetCursorPos()
+        print("Corner = {}".format(corner))
+        
 
