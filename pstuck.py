@@ -1,20 +1,25 @@
 import win32api
 import win32con
 import win32gui
+from pymouse import PyMouse
+from pykeyboard import PyKeyboard
+from pykeyboard import PyKeyboardEvent
 import time
 import PIL.ImageGrab as sc
 import itertools
 from operator import itemgetter
 
+mouse = PyMouse()
+key = PyKeyboard()
+
 def move((x,y)):
-    win32api.SetCursorPos((x,y))
+    mouse.move(x,y)
 
 def down((x,y)):
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
+    mouse.press(x,y)
 
 def up((x,y)):
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
-
+    mouse.release(x,y)
 
 locs = itertools.product(range(5), range(6))
 corner=(1029,301)
@@ -229,16 +234,23 @@ def doRows(fake = False):
         printBoard(board2)
         print("errors: {}\n".format(compareBoard(board, board2)))
 
+class Keyboard(PyKeyboardEvent):
+    def __init__(self):
+        PyKeyboardEvent.__init__(self)
 
+    def tap(self, keycode, character, press):
+        if press:
+            if keycode == key.function_keys[1]:
+                doRows(True)
+            if keycode == key.function_keys[2]:
+                doRows(False)
+            if keycode == key.function_keys[3]:
+                corner = mouse.position()
+                print("Corner = {}".format(corner))
+
+keyrec = Keyboard()
+keyrec.run()
 
 while 1:
     time.sleep(.1)
-    if win32api.GetAsyncKeyState(win32con.VK_F1):
-        doRows(True)
-    if win32api.GetAsyncKeyState(win32con.VK_F2):
-        doRows(False)
-    if win32api.GetAsyncKeyState(win32con.VK_F3):
-        corner = win32api.GetCursorPos()
-        print("Corner = {}".format(corner))
-        
 
