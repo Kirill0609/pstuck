@@ -157,10 +157,16 @@ def colorCenter(board):
         if len(clist) > 2:
             x = float(sum([a[0] for a in clist]))/len(clist)
             y = float(sum([a[1] for a in clist]))/len(clist)
-            result.append((color, x,y, len(clist) if len(clist) < 5 else 5))
+#            result.append((color, x,y, len(clist) if len(clist) < 5 else 5))
+            result.append((color, x,y, len(clist)))
     result = sorted(result, key= lambda x: x[2], reverse=True)
     result = sorted(result, key= itemgetter(3,2), reverse=True)
     return result
+
+def printColors(centers):
+    for color, x, y, num in centers:
+        print("{} {}".format(colormap[color], num))
+
 
 def colorToPoint(board, color, pos, exclude):
     clist = []
@@ -198,8 +204,9 @@ def doRows(fake = False):
     lock = []
 
     board = getBoard()
-    printBoard(board)
     weights = colorCenter(board)
+    printColors(weights)
+    printBoard(board)
 
     times.append(time.time())
 
