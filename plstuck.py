@@ -2,9 +2,22 @@ from pymouse import PyMouse
 from pykeyboard import PyKeyboard
 from pykeyboard import PyKeyboardEvent
 import time
-import PIL.ImageGrab as sc
 import itertools
 from operator import itemgetter
+
+import gtk.gdk
+"""
+w = gtk.gdk.get_default_root_window()
+sz = w.get_size()
+print "The size of the window is %d x %d" % sz
+pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,sz[0],sz[1])
+pb = pb.get_from_drawable(w,w.get_colormap(),0,0,0,0,sz[0],sz[1])
+if (pb != None):
+    pb.save("screenshot.png","png")
+    print "Screenshot saved to screenshot.png."
+else:
+    print "Unable to get the screenshot."
+"""
 
 mouse = PyMouse()
 key = PyKeyboard()
@@ -34,7 +47,14 @@ colormap = ['s', 'r', 'g', 'b', 'y', 'p']
 moves = 0
 
 def getBoardImg():
-    return sc.grab((corner[0], corner[1], corner[0] + 5*scale, corner[1] + 6*scale))
+    global corner
+    width = 5*scale
+    height = 6*scale
+    w = gtk.gdk.get_default_root_window()
+    sz = w.get_size()
+    pb = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,width, height)
+    pb = pb.get_from_drawable(w,w.get_colormap(),corner[0],corner[1],0,0,width, height)
+    return pb.get_pixels_array()    
 
 def compareColor(c1, c2):
     error = 0
@@ -52,7 +72,7 @@ def getOrb(img, pos):
     b = 0
     for x in range(pos[0]*scale,(pos[0]+1)*scale):
         for y in range(pos[1]*scale,(pos[1]+1)*scale):
-            p = img.getpixel((x,y))
+            p = img[y][x]
             r += p[0]
             g += p[1]
             b += p[2]
@@ -232,10 +252,12 @@ def doRows(fake = False):
         print("errors: {}\n".format(compareBoard(board, board2)))
 
 class Keyboard(PyKeyboardEvent):
+
     def __init__(self):
         PyKeyboardEvent.__init__(self)
 
     def tap(self, keycode, character, press):
+        global corner
         if press:
             if keycode == key.function_keys[1]:
                 doRows(True)
