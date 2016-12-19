@@ -42,9 +42,20 @@ colors =    [ (123, 108, 97) #skull
             , (99, 60, 136)  #purple
             ]
 
+dcolors =   [ (220, 220, 220) #skull
+            , (255,0,0) #red
+            , (0, 255, 0)  #green
+            , (128,192,255) #blue
+            , (255, 220, 0) #yellow
+            , (192, 0, 192)  #purple
+            ]
+
+
 colormap = ['s', 'r', 'g', 'b', 'y', 'p']
 
 moves = 0
+
+
 
 def getBoardImg():
     global corner
@@ -186,8 +197,16 @@ def colorCenter(board):
     return result
 
 def printColors(centers):
+    parts = []
+    bar = ""
     for color, x, y, num in centers:
-        print("{} {}".format(colormap[color], num))
+        cstr = "{:02x}{:02x}{:02x}".format(*dcolors[color])
+        parts.append("{} {} {}".format(colormap[color], num, cstr))
+
+        bar += "<fc=#{}>{num}</fc> ".format(cstr, num=num)
+    print("\n".join(parts))
+
+    return bar
 
 
 def colorToPoint(board, color, pos, exclude):
@@ -227,7 +246,7 @@ def doRows(fake = False):
 
     board = getBoard()
     weights = colorCenter(board)
-    printColors(weights)
+    bar = printColors(weights)
     printBoard(board)
 
     times.append(time.time())
@@ -242,6 +261,13 @@ def doRows(fake = False):
         print("times: {}".format(times[1:]))
     else:
         print("times: {}".format(moves*.13))
+
+    bar += "| {} {}".format(moves, moves*.13)
+
+    with open("/home/goldcray/.xmonad/left","w") as f:
+        f.write(bar)
+
+
     printBoard(board, weights)
     print("")
 
