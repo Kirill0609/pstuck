@@ -5,6 +5,8 @@ import time
 import itertools
 from operator import itemgetter
 
+import status
+
 import gtk.gdk
 """
 w = gtk.gdk.get_default_root_window()
@@ -203,10 +205,8 @@ def printColors(centers):
         cstr = "{:02x}{:02x}{:02x}".format(*dcolors[color])
         parts.append("{} {} {}".format(colormap[color], num, cstr))
 
-        bar += "<fc=#{}>{num}</fc> ".format(cstr, num=num)
+        status.append_text(str(num), "left", dcolors[color])
     print("\n".join(parts))
-
-    return bar
 
 
 def colorToPoint(board, color, pos, exclude):
@@ -246,7 +246,7 @@ def doRows(fake = False):
 
     board = getBoard()
     weights = colorCenter(board)
-    bar = printColors(weights)
+    printColors(weights)
     printBoard(board)
 
     times.append(time.time())
@@ -262,11 +262,8 @@ def doRows(fake = False):
     else:
         print("times: {}".format(moves*.13))
 
-    bar += "| {} {}".format(moves, moves*.13)
-
-    with open("/home/goldcray/.xmonad/left","w") as f:
-        f.write(bar)
-
+    status.append_text("| {} {}".format(moves, moves*.13), "left")
+    status.render(["left"])
 
     printBoard(board, weights)
     print("")
@@ -298,4 +295,6 @@ keyrec.run()
 
 while 1:
     time.sleep(.1)
+
+
 
