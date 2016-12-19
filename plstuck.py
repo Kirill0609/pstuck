@@ -286,15 +286,21 @@ class Keyboard(PyKeyboardEvent):
                 doRows(True)
             if keycode == key.function_keys[2]:
                 doRows(False)
-            if keycode == key.function_keys[3]:
+            if keycode == key.function_keys[5]:
                 corner = mouse.position()
                 print("Corner = {}".format(corner))
 
-keyrec = Keyboard()
-keyrec.run()
+status.render(["left"])
 
-while 1:
-    time.sleep(.1)
+try:
+    keyrec = Keyboard()
+    keyrec.run()
 
+    while 1:
+        time.sleep(.1)
+except KeyboardInterrupt as e:
+    print(e)
+    status.render(["left"])
+    status.render(["left"])
 
 
